@@ -1,42 +1,49 @@
 #include <gtk/gtk.h>
 
-// Функция для обработки нажатия кнопки
-static void on_button_clicked(GtkWidget *widget, gpointer data) {
-    GtkWidget *dialog;
+// Функция для рисования
+static void do_drawing(cairo_t *cr) {
+    // Установите цвет (красный)
+    cairo_set_source_rgb(cr, 1, 0, 0);
+    // Нарисуйте прямоугольник
+    cairo_rectangle(cr, 50, 50, 200, 100);
+    cairo_fill(cr);
 
-    // Создание диалогового окна с сообщением
-    dialog = gtk_message_dialog_new(GTK_WINDOW(data),
-                                     GTK_DIALOG_DESTROY_WITH_PARENT,
-                                     GTK_MESSAGE_INFO,
-                                     GTK_BUTTONS_OK,
-                                     "Привет, мир!");
-    gtk_dialog_run(GTK_DIALOG(dialog)); // Отображение диалогового окна
-    gtk_widget_destroy(dialog); // Уничтожение диалогового окна после закрытия
+    // Установите цвет (синий)
+    cairo_set_source_rgb(cr, 0, 0, 1);
+    // Нарисуйте круг
+    cairo_arc(cr, 150, 150, 50, 0, 2 * G_PI);
+    cairo_fill(cr);
+}
+
+// Обработчик события "рисование"
+static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
+    do_drawing(cr);
+    return FALSE;
 }
 
 int main(int argc, char *argv[]) {
     GtkWidget *window;
-    GtkWidget *button;
+    GtkWidget *drawing_area;
 
     // Инициализация GTK
     gtk_init(&argc, &argv);
 
     // Создание нового окна
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Пример приложения");
-    gtk_window_set_default_size(GTK_WINDOW(window), 200, 100);
+    gtk_window_set_title(GTK_WINDOW(window), "Рисование с GTK");
+    gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
 
-    // Обработка события закрытия окна
+    // Создание области для рисования
+    drawing_area = gtk_drawing_area_new();
+    gtk_container_add(GTK_CONTAINER(window), drawing_area);
+
+    // Подключение обработчика события
+    g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(on_draw_event), NULL);
+
+    // Закрытие приложения при закрытии окна
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    // Создание кнопки
-    button = gtk_button_new_with_label("Нажми меня");
-    g_signal_connect(button, "clicked", G_CALLBACK(on_button_clicked), window); // Передаем окно как данные
-
-    // Добавление кнопки в окно
-    gtk_container_add(GTK_CONTAINER(window), button);
-
-    // Показать все элементы в окне
+    // Отображение всех виджетов
     gtk_widget_show_all(window);
 
     // Запуск основного цикла GTK

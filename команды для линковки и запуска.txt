@@ -1,3 +1,4 @@
 unset GTK_PATH
 make
 ./output
+make clean

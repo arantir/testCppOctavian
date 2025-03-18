@@ -2,14 +2,22 @@ CXX = g++
 CXXFLAGS = `pkg-config --cflags gtk+-3.0` -Wall -g
 LDFLAGS = `pkg-config --libs gtk+-3.0`
 TARGET = output
+SRC_FILES = main.cpp  # Список исходных файлов
+OBJ_FILES = $(SRC_FILES:.cpp=.o)  # Преобразуем список .cpp в .o
 
+# Правило по умолчанию
 all: $(TARGET)
 
-$(TARGET): main.o
-	$(CXX) $(CXXFLAGS) -o $(TARGET) main.o $(LDFLAGS)
+# Линковка объектных файлов в исполняемый файл
+$(TARGET): $(OBJ_FILES)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
-main.o: main.cpp
-	$(CXX) $(CXXFLAGS) -c main.cpp
+# Компиляция исходных файлов в объектные файлы
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Очистка сгенерированных файлов
 clean:
-	rm -f $(TARGET) *.o
+	rm -f $(TARGET) $(OBJ_FILES)
+
+.PHONY: all clean  # Указываем, что all и clean не являются файлами
